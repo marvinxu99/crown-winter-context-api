@@ -1,22 +1,71 @@
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
+import { createStructuredSelector } from 'reselect';
+import { connect } from 'react-redux';
+
+import { fetchCollectionsStartAsync } from '../../redux/shop/shop.actions';
+import { 
+  selectIsCollectionFetching, 
+  selectIsCollectionsLoaded
+} from '../../redux/shop/shop.selectors';
+
+import WithSpinner from '../../components/with-spinner/with-spinner.component';
 
 import CollectionsOverview from '../../components/collections-overview/collections-overview.component';
 import CollectionPage from '../collection/collection.component';
 import PageNotFound from '../page-not-found/page-not-found.component';
 
-const ShopPage = ({ match }) => {
-  if (process.env.NODE_ENV === 'development') { console.log(match); }
+const CollectionsOverviewWithSpinner = WithSpinner(CollectionsOverview);
+const CollectionPageWithSpinner = WithSpinner(CollectionPage);
+
+class ShopPage extends React.Component { 
   
-  return(
-    <div className='shop-page'>
-      <Switch>
-        <Route exact path={`${match.path}`} component={CollectionsOverview} />
-        <Route path={`${match.path}/:collectionId`} component={CollectionPage} />
-        <Route component={PageNotFound} /> 
-      </Switch>
-    </div>
-  );
+  componentDidMount() {
+    const { fetchCollectionsStartAsync } = this.props;
+    fetchCollectionsStartAsync();
+  }
+
+  render() {
+    const { match, isFetchingCollections, isCollectionsLoaded } = this.props;
+
+    if (process.env.NODE_ENV === 'development') console.log(match);
+
+    return(
+      <div className='shop-page'>
+        <Switch>
+          <Route
+            exact
+            path={`${match.path}`}
+            render={props => (
+              <CollectionsOverviewWithSpinner 
+                isLoading={ isFetchingCollections } 
+                { ...props } 
+              />
+            )}
+          />
+          <Route
+            path={`${match.path}/:collectionId`}
+            render={props => (
+              <CollectionPageWithSpinner 
+                isLoading={ !isCollectionsLoaded } 
+                { ...props } 
+              />
+            )}
+          />
+          <Route component={PageNotFound} /> 
+        </Switch>
+      </div>
+    );
+  };
 } 
 
-export default ShopPage;
+const mapStateToProps = createStructuredSelector({
+  isFetchingCollections: selectIsCollectionFetching,
+  isCollectionsLoaded: selectIsCollectionsLoaded
+})
+
+const mapDispatchToProps = dispatch => ({
+  fetchCollectionsStartAsync: () => dispatch(fetchCollectionsStartAsync())
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(ShopPage);

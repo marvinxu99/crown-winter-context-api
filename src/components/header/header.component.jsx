@@ -26,7 +26,13 @@ const Header = ({ currentUser, hidden }) => (
     </LogoContainer>
 
     <OptionsContainer>
-        <OptionLink to='/'>
+        <OptionLink to='/admin'>
+          ADMIN
+        </OptionLink>
+        <OptionLink to='/redux'>
+          REDUX
+        </OptionLink>
+        <OptionLink to='/home'>
           HOME
         </OptionLink>
         <OptionLink to='/shop'>
