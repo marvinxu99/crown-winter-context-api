@@ -22,14 +22,6 @@ export const CartContext = createContext({
     const [ cartItems, setCartItems] = useState([]);
     const [ cartItemsCount, setCartItemsCount ] = useState(0);
 
-    const getCartItemsCount = () => (
-      cartItems.length ? 
-        cartItems.reduce((accumulatedQuantity, cartItem) => 
-          accumulatedQuantity + cartItem.quantity, 0)
-        :
-        0    
-    );
-
     const addItem = item => setCartItems(addItemToCart(cartItems, item));
 
     const removeItem = item => setCartItems(removeItemFromCart(cartItems, item));
