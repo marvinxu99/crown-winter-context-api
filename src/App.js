@@ -7,12 +7,14 @@ import './App.css';
 
 import Header from './components/header/header.component';
 
+import AdminPage from './pages/admin-page/admin-page.component';
 import HomePage from './pages/homepage/homepage.component';
 import ShopPage from './pages/shop/shop.component';
 import SignInAndSignUpPage from './pages/sign-in-and-sign-up/sign-in-and-sign-up.component';
 import ContactPage from './pages/contact/contact.component';
 import CheckoutPage from './pages/checkout/checkout.component';
 import PageNotFound from './pages/page-not-found/page-not-found.component';
+import ReduxFlowPage from './pages/redux-flow/redux-flow.component';
 
 import { auth, createUserProfileDocument } from './firebase/firebase.utils';
 import { setCurrentUser} from './redux/user/user.actions';
@@ -23,6 +25,7 @@ import { ReactComponent as Logo } from './assets/images/winter-resized.svg';
 
 class App extends React.Component {
   unsubscribeFromAuth = null;
+  unsubscribeFromSnapShot = null;
   
   componentDidMount() {
     const { setCurrentUser } = this.props;
@@ -31,7 +34,7 @@ class App extends React.Component {
       if(userAuth) {
         const userRef = await createUserProfileDocument(userAuth);
 
-        userRef.onSnapshot(snapShot => {
+        this.unsubscribeFromSnapShot = userRef.onSnapshot(snapShot => {
           setCurrentUser({
             id: snapShot.id,
             ...snapShot.data()
@@ -44,7 +47,8 @@ class App extends React.Component {
   }
 
   componentWillUnmount() {
-    this.unsubscribeFromAuth();
+    if (this.unsubscribeFromAuth) this.unsubscribeFromAuth();
+    if (this.unsubscribeFromSnapShot) this.unsubscribeFromSnapShot();
   }
 
   render() {
@@ -53,17 +57,17 @@ class App extends React.Component {
       <div>
         <Header />
         <Switch>
-          <Route exact path='/' component={HomePage} />
-          <Route path='/shop' component={ShopPage} />
-          <Route exact path='/checkout' component={CheckoutPage} />
-          <Route exact path='/contact' component={ContactPage} />
-          <Route 
-            exact path='/signin' 
-            render={ () => currentUser ? 
-              (<Redirect to='/' />) : (<SignInAndSignUpPage />) } 
+          <Route exact path='/' component={ HomePage } />
+          <Route path='/shop' component={ ShopPage }  />
+          <Route exact path='/home' render={ () => <Redirect to='/' /> } />
+          <Route exact path='/admin' component={ AdminPage } />
+          <Route exact path='/redux' component={ ReduxFlowPage } />
+          <Route exact path='/checkout' component={ CheckoutPage } />
+          <Route exact path='/contact' component={ ContactPage } />
+          <Route exact path='/signin' 
+            render={ () => currentUser ? (<Redirect to='/' />) : (<SignInAndSignUpPage />) } 
           />
-          <Route 
-            path='/external' 
+          <Route path='/external' 
             component={() => window.location = 'https://external.com/path'}
           />     
           <Route component={PageNotFound} />    
