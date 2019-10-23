@@ -15,7 +15,6 @@ import PageNotFound from './pages/page-not-found/page-not-found.component';
 import ReduxFlowPage from './pages/redux-flow/redux-flow.component';
 
 import { auth, createUserProfileDocument } from './firebase/firebase.utils';
-import { setCurrentUser} from './redux/user/user.actions';
 
 import { ReactComponent as Logo } from './assets/images/winter-resized.svg';
 
@@ -47,7 +46,7 @@ class App extends React.Component {
           })         
         })
       } else {
-        setCurrentUser({ currentUser: null });
+        this.setState({ currentUser: null });
       }
     })
   }
